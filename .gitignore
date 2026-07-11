@@ -1,18 +1,19 @@
 # Dependencies
+node_modules/
 client/node_modules/
 server/node_modules/
 
-# Environment files
+# Environment variables
+.env
 client/.env
 server/.env
-.env
+
+# Build output
+client/dist/
+server/dist/
 
 # Logs
 *.log
-
-# Build folders
-client/dist/
-server/dist/
 
 # OS files
 .DS_Store
