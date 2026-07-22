@@ -1,7 +1,13 @@
 import express,{Request, Response} from "express";
 import pool from "./config/db"
+import cors from "cors"
 
 const app = express();
+
+app.use(cors({
+  origin : "http://localhost:5317",
+  credentials : true
+}))
 
 app.use(express.json());
 
