@@ -26,8 +26,6 @@
     padding:18px;
 }
 
-/* ---------- Logo ---------- */
-
 .logo-section{
 
     display:flex;
@@ -114,8 +112,6 @@ nav a.active{
 
     font-weight:600;
 }
-
-/* ---------- Logout ---------- */
 
 .logout{
 
