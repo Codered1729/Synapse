@@ -1,8 +1,10 @@
 import {useState, type FormEvent} from "react"
+import { useNavigate } from "react-router-dom"
 export default function Login(){
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
+    const navigate = useNavigate()
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -13,11 +15,15 @@ export default function Login(){
                 headers: {"Content-Type" : "application/json"},
                 body: JSON.stringify({email,password}),
             })
+            
+            if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`HTTP ${res.status}: Route not found or server error.`);
+            }
             const data = await res.json();
-            if(!res.ok) throw new Error(data.error);
 
             localStorage.setItem("token", data.token)
-            alert("login successful token saved")
+            navigate("/dashboard")
         } catch (err : any){
             setError(err.message)
         }
