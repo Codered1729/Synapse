@@ -1,14 +1,18 @@
 import express, {Request, Response} from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-import pool from "../config/db"
+import prisma from "../config/prisma"
+
+
 
 const router = express.Router();
 
 router.post("/login", async (req: Request, res : Response):Promise<void> =>{
     const {email, password} = req.body
     try{
-        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email])
+        const result = await prisma.user.findUnique({
+            where:{email}
+        })
         const user = result.rows[0]
 
         if(!user){
