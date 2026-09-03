@@ -1,0 +1,32 @@
+.manager-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.forms-wrapper {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 30px;
+}
+
+.manager-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.regulation-item {
+  margin-bottom: 20px;
+}
+
+.regulation-title {
+  margin-bottom: 5px;
+}
+
+.branch-list {
+  margin-top: 0;
+}
+
+.empty-branch {
+  color: gray;
+}
