@@ -6,8 +6,6 @@ import RegulationManager from './components/RegulationManager';
 
 function DashboardLayout() {
   const token = localStorage.getItem("token");
-  
-  // Protect the dashboard routes
   if (!token) {
     return <Navigate to="/login" replace />;
   }

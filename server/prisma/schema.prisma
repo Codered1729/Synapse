@@ -8,58 +8,63 @@ datasource db {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  email         String  @unique @db.VarChar(256)
-  password_hash String  @db.VarChar(256)
-  role          String? @default("admin") @db.VarChar(50)
-
-  @@map("users")
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password_hash String
+  role          String   @default("student")
 }
 
-// -----------------------------------------------------
-// SYNAPSE ACADEMIC ARCHITECTURE
-// -----------------------------------------------------
-
 model Regulation {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique // e.g., "R22"
-  createdAt DateTime @default(now())
-  
-  // A regulation has many branches
-  branches  Branch[]
+  id       Int      @id @default(autoincrement())
+  name     String
+  branches Branch[]
 }
 
 model Branch {
-  id           Int      @id @default(autoincrement())
-  name         String   // e.g., "B.Tech CSE"
-  
-  // Foreign Key linking back to Regulation
+  id           Int        @id @default(autoincrement())
+  name         String
   regulationId Int
   regulation   Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
-  
-  // A branch has many subjects
   subjects     Subject[]
 }
 
 model Subject {
-  id           Int      @id @default(autoincrement())
-  name         String   // e.g., "Mathematics-I"
-  year         Int      // e.g., 1, 2, 3, 4
-  semester     Int?     // Optional: in case you need to split years into semesters later
+  id         Int                @id @default(autoincrement())
+  name       String
+  year       Int
+  semester   Int
+  branchId   Int
+  branch     Branch             @relation(fields: [branchId], references: [id], onDelete: Cascade)
   
-  // Foreign Key linking back to Branch
-  branchId     Int
-  branch       Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  
-  // A subject has many grading components
-  components   SubjectComponent[]
+  components SubjectComponent[]
+  resources  Resource[]         
 }
 
 model SubjectComponent {
-  id           Int      @id @default(autoincrement())
-  name         String   // e.g., "Theory", "Lab", "Assignments"
+  id        Int      @id @default(autoincrement())
+  type      String   
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  modules   Module[] 
+}
+
+model Module {
+  id          Int      @id @default(autoincrement())
+  name        String   // e.g., "Unit", "Experiment"
+  moduleNo    Int      // The exact integer for perfect sorting
+  componentId Int
+  component   SubjectComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
   
-  // Foreign Key linking back to Subject
-  subjectId    Int
-  subject      Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  resources   Resource[] 
+}
+
+model Resource {
+  id        Int      @id @default(autoincrement())
+  fileName  String   
+  fileUrl   String   
+  
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  modules   Module[] 
 }
