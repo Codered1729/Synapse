@@ -1,32 +1,196 @@
 .manager-container {
-  padding: 20px;
-  font-family: sans-serif;
+    padding: 20px;
+    font-family: Arial, sans-serif;
 }
 
 .forms-wrapper {
-  display: flex;
-  gap: 40px;
-  margin-bottom: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .manager-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    min-width: 250px;
+}
+
+.manager-form input,
+.manager-form select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.manager-form button {
+    padding: 8px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.manager-form button:hover {
+    background: #0056b3;
 }
 
 .regulation-item {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
 }
 
 .regulation-title {
-  margin-bottom: 5px;
+    margin: 0 0 10px 0;
+    color: #333;
 }
 
 .branch-list {
-  margin-top: 0;
+    margin: 0;
+    padding-left: 20px;
 }
 
 .empty-branch {
-  color: gray;
+    color: #888;
+    font-style: italic;
+}
+
+/* Nested Hierarchy Styles */
+.branch-item {
+    margin-bottom: 15px;
+}
+
+.subject-list {
+    margin-top: 5px;
+    color: #444;
+}
+
+.subject-item {
+    margin-bottom: 8px;
+}
+
+.component-container {
+    margin-left: 15px;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.component-pill {
+    background: #e0e0e0;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: #333;
+}
+
+.empty-text {
+    font-style: italic;
+    color: #888;
+}
+
+/* Checkbox UI for Tagging */
+.checkbox-group {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    max-height: 120px;
+    overflow-y: auto;
+    font-size: 0.9em;
+}
+
+.checkbox-title {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #444;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.hierarchy-display h2, .hierarchy-display h3, .hierarchy-display h4, .hierarchy-display h5 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.branch-item {
+    margin: 15px 0 15px 20px;
+    padding-left: 15px;
+    border-left: 2px solid #007bff;
+}
+
+.subject-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #e9ecef;
+}
+
+.components-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.component-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    flex: 1;
+    min-width: 250px;
+}
+
+.module-item {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f4f6f8;
+    border-radius: 4px;
+}
+
+.general-resources {
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.module-resources {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.resource-link {
+    color: #0056b3;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.resource-link:hover {
+    text-decoration: underline;
 }
