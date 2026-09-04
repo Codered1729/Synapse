@@ -94,7 +94,7 @@ router.post('/subjects', async (req: Request, res: Response) => {
 
 router.post('/components', async (req: Request, res: Response) => {
     try {
-        const { type, subjectId } = req.body; // Changed 'name' to 'type' (THEORY/LAB)
+        const { type, subjectId } = req.body; 
         const component = await prisma.subjectComponent.create({
             data: { type, subjectId: Number(subjectId) }
         });
@@ -106,12 +106,18 @@ router.post('/components', async (req: Request, res: Response) => {
 
 router.post('/modules', async (req: Request, res: Response) => {
     try {
-        const { name, componentId } = req.body;
+        const { name, moduleNo, componentId } = req.body; 
+        
         const module = await prisma.module.create({
-            data: { name, componentId: Number(componentId) }
+            data: { 
+                name, 
+                moduleNo: Number(moduleNo), 
+                componentId: Number(componentId) 
+            }
         });
         res.status(201).json(module);
     } catch(err) {
+        console.error(err);
         res.status(500).json({ error: "Failed to create module" });
     }
 });
@@ -125,7 +131,6 @@ router.post('/resources', async (req: Request, res: Response) => {
                 fileName,
                 fileUrl,
                 subjectId: Number(subjectId),
-                // If the user tagged specific units, connect them here:
                 modules: moduleIds && moduleIds.length > 0 ? {
                     connect: moduleIds.map((id: number | string) => ({ id: Number(id) }))
                 } : undefined
