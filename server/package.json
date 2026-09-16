@@ -6,7 +6,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed": "tsx src/seedR22.ts",
     "postinstall": "prisma skills sync || exit 0"
+  },
+  "prisma": {
+    "seed": "tsx src/seedR22.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",

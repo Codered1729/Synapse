@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 import './RegulationManager.css';
 
 interface Resource {
@@ -46,7 +46,10 @@ interface Regulation {
 
 function RegulationManager() {
     const [regulations, setRegulations] = useState<Regulation[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [actionMessage, setActionMessage] = useState<string>('');
     
+    // Form States
     const [newRegulation, setNewRegulation] = useState('');
     const [newBranch, setNewBranch] = useState('');
     const [selectedRegId, setSelectedRegId] = useState('');
@@ -60,112 +63,160 @@ function RegulationManager() {
     const [newComponentType, setNewComponentType] = useState('');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
 
-    // Module State (Prefix + Number)
     const [selectedComponentId, setSelectedComponentId] = useState('');
     const [modulePrefix, setModulePrefix] = useState('Unit');
     const [moduleNumber, setModuleNumber] = useState('');
 
-    // Resource State
     const [newResourceName, setNewResourceName] = useState('');
     const [newResourceUrl, setNewResourceUrl] = useState('');
     const [resourceSubjectId, setResourceSubjectId] = useState('');
     const [isGeneralResource, setIsGeneralResource] = useState(true);
     const [selectedModuleIds, setSelectedModuleIds] = useState<string[]>([]);
 
-    const navigate = useNavigate();
-    const getToken = () => localStorage.getItem("token");
-    
-    const fetchRegulation = async () => {
-        try {
-            const res = await fetch('http://localhost:5000/api/academic/regulations', {
-                headers: { 'Authorization': `Bearer ${getToken()}` }
-            });
-            if (res.status === 401 || res.status === 403) {
-                localStorage.removeItem("token");
-                navigate("/login");
-                return;
+    const [refreshIndex, setRefreshIndex] = useState(0);
+
+    const triggerRefresh = () => {
+        setRefreshIndex(prev => prev + 1);
+    };
+
+    useEffect(() => { 
+        let isCancelled = false;
+        const loadHierarchy = async () => {
+            try {
+                const data = await api.get<Regulation[]>('/academic/regulations');
+                if (!isCancelled) {
+                    setRegulations(data);
+                }
+            } catch (err: unknown) {
+                if (!isCancelled) {
+                    console.error('Error fetching regulations:', err);
+                }
+            } finally {
+                if (!isCancelled) {
+                    setLoading(false);
+                }
             }
-            const data = await res.json();
-            setRegulations(data);
-        } catch (err) {
-            console.error(err);
+        };
+
+        loadHierarchy();
+        return () => {
+            isCancelled = true;
+        };
+    }, [refreshIndex]);
+
+    const showToast = (msg: string) => {
+        setActionMessage(msg);
+        setTimeout(() => setActionMessage(''), 4000);
+    };
+
+    const handleDelete = async (endpoint: string, id: number, label: string) => {
+        if (!window.confirm(`Are you sure you want to delete "${label}"? This will delete all attached child data!`)) {
+            return;
+        }
+        try {
+            await api.delete(`/academic/${endpoint}/${id}`);
+            showToast(`Deleted ${label} successfully`);
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Delete failed');
         }
     };
 
-    useEffect(() => { fetchRegulation(); }, []);
-
     const handleCreateRegulation = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/regulations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({ name: newRegulation })
-        });
-        setNewRegulation(''); fetchRegulation();
+        try {
+            await api.post('/academic/regulations', { name: newRegulation });
+            setNewRegulation(''); 
+            showToast('Regulation created');
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create regulation');
+        }
     };
 
     const handleCreateBranch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/branches', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({ name: newBranch, regulationId: Number(selectedRegId) })
-        });
-        setNewBranch(''); setSelectedRegId(''); fetchRegulation(); 
+        try {
+            await api.post('/academic/branches', { name: newBranch, regulationId: Number(selectedRegId) });
+            setNewBranch(''); 
+            setSelectedRegId(''); 
+            showToast('Branch created');
+            triggerRefresh(); 
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create branch');
+        }
     };
 
     const handleCreateSubject = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/subjects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({
-                name: newSubjectName, year: Number(newSubjectYear),
-                semester: Number(newSubjectSemester), branchId: Number(selectedBranchId)
-            })
-        });
-        setNewSubjectName(''); setNewSubjectYear(''); setNewSubjectSemester('');
-        setSelectedBranchId(''); setSubjectFormRegId(''); fetchRegulation();
+        try {
+            await api.post('/academic/subjects', {
+                name: newSubjectName, 
+                year: Number(newSubjectYear),
+                semester: Number(newSubjectSemester), 
+                branchId: Number(selectedBranchId)
+            });
+            setNewSubjectName(''); 
+            setNewSubjectYear(''); 
+            setNewSubjectSemester('');
+            setSelectedBranchId(''); 
+            setSubjectFormRegId(''); 
+            showToast('Subject created');
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create subject');
+        }
     };
 
     const handleCreateComponent = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/components', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({ type: newComponentType, subjectId: Number(selectedSubjectId) })
-        });
-        setNewComponentType(''); setSelectedSubjectId(''); fetchRegulation();
+        try {
+            await api.post('/academic/components', { type: newComponentType, subjectId: Number(selectedSubjectId) });
+            setNewComponentType(''); 
+            setSelectedSubjectId(''); 
+            showToast('Component created');
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create component');
+        }
     };
 
     const handleCreateModule = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/modules', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({ 
-                name: modulePrefix,            // e.g., "Unit"
-                moduleNo: Number(moduleNumber),// e.g., 1
+        try {
+            await api.post('/academic/modules', { 
+                name: modulePrefix,
+                moduleNo: Number(moduleNumber),
                 componentId: Number(selectedComponentId) 
-            })
-        });
-        setModuleNumber(''); setSelectedComponentId(''); fetchRegulation();
+            });
+            setModuleNumber(''); 
+            setSelectedComponentId(''); 
+            showToast('Module created');
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create module');
+        }
     };
 
     const handleCreateResource = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await fetch('http://localhost:5000/api/academic/resources', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
-            body: JSON.stringify({
+        try {
+            await api.post('/academic/resources', {
                 fileName: newResourceName,
                 fileUrl: newResourceUrl,
                 subjectId: Number(resourceSubjectId),
                 moduleIds: isGeneralResource ? [] : selectedModuleIds.map(Number)
-            })
-        });
-        setNewResourceName(''); setNewResourceUrl(''); setResourceSubjectId('');
-        setSelectedModuleIds([]); setIsGeneralResource(true); fetchRegulation();
+            });
+            setNewResourceName(''); 
+            setNewResourceUrl(''); 
+            setResourceSubjectId('');
+            setSelectedModuleIds([]); 
+            setIsGeneralResource(true); 
+            showToast('Resource added');
+            triggerRefresh();
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : 'Failed to create resource');
+        }
     };
 
     const handleModuleToggle = (moduleId: string) => {
@@ -186,15 +237,27 @@ function RegulationManager() {
         return [];
     };
 
+    if (loading) {
+        return <div style={{ padding: '24px', textAlign: 'center' }}>Loading Academic Hierarchy...</div>;
+    }
+
     return (
         <div className="manager-container">
-            <h2>Academic Manager</h2>
+            <header style={{ marginBottom: '20px' }}>
+                <h1 style={{ margin: '0 0 6px', fontSize: '1.8rem', color: '#0f172a' }}>Academic Hierarchy Manager</h1>
+                <p style={{ margin: 0, color: '#64748b' }}>Configure regulations, branches, subjects, and curriculum modules.</p>
+                {actionMessage && (
+                    <div style={{ marginTop: '12px', padding: '8px 16px', background: '#dcfce7', color: '#166534', borderRadius: '6px', fontSize: '0.9rem', display: 'inline-block' }}>
+                        ✓ {actionMessage}
+                    </div>
+                )}
+            </header>
             
             <div className="forms-wrapper">
                 <form onSubmit={handleCreateRegulation} className="manager-form">
                     <h3>1. Add Regulation</h3>
                     <input type="text" value={newRegulation} onChange={(e) => setNewRegulation(e.target.value)} placeholder="e.g., R22" required />
-                    <button type="submit">Add</button>
+                    <button type="submit">Add Regulation</button>
                 </form>
 
                 <form onSubmit={handleCreateBranch} className="manager-form">
@@ -204,7 +267,7 @@ function RegulationManager() {
                         {regulations.map(reg => <option key={reg.id} value={reg.id}>{reg.name}</option>)}
                     </select>
                     <input type="text" value={newBranch} onChange={(e) => setNewBranch(e.target.value)} placeholder="e.g., CSE" required />
-                    <button type="submit">Add</button>
+                    <button type="submit">Add Branch</button>
                 </form>
 
                 <form onSubmit={handleCreateSubject} className="manager-form">
@@ -220,9 +283,9 @@ function RegulationManager() {
                         ))}
                     </select>
                     <input type="text" value={newSubjectName} onChange={(e) => setNewSubjectName(e.target.value)} placeholder="Subject Name" required />
-                    <input type="number" value={newSubjectYear} onChange={(e) => setNewSubjectYear(e.target.value)} placeholder="Year (e.g., 3)" required />
+                    <input type="number" value={newSubjectYear} onChange={(e) => setNewSubjectYear(e.target.value)} placeholder="Year (e.g., 2)" required />
                     <input type="number" value={newSubjectSemester} onChange={(e) => setNewSubjectSemester(e.target.value)} placeholder="Semester (e.g., 1)" required />
-                    <button type="submit">Add</button>
+                    <button type="submit">Add Subject</button>
                 </form>
 
                 <form onSubmit={handleCreateComponent} className="manager-form">
@@ -241,7 +304,7 @@ function RegulationManager() {
                         <option value="LAB">LAB</option>
                         <option value="ASSIGNMENT">ASSIGNMENT</option>
                     </select>
-                    <button type="submit">Add</button>
+                    <button type="submit">Add Component</button>
                 </form>
 
                 <form onSubmit={handleCreateModule} className="manager-form">
@@ -264,7 +327,7 @@ function RegulationManager() {
                         </select>
                         <input type="number" value={moduleNumber} onChange={(e) => setModuleNumber(e.target.value)} placeholder="No." min="1" required style={{ width: '70px' }} />
                     </div>
-                    <button type="submit">Add</button>
+                    <button type="submit">Add Module</button>
                 </form>
 
                 <form onSubmit={handleCreateResource} className="manager-form">
@@ -317,26 +380,45 @@ function RegulationManager() {
                 </form>
             </div>
 
-            <hr />
+            <hr style={{ margin: '30px 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
 
+            <h2 style={{ color: '#0f172a', marginBottom: '16px' }}>Curriculum Hierarchy Overview</h2>
             <div className="hierarchy-display">
                 {regulations.map((reg) => (
                     <div key={reg.id} className="regulation-item">
-                        <h2>{reg.name}</h2>
+                        <div className="item-header">
+                            <h2>{reg.name}</h2>
+                            <button className="delete-btn" onClick={() => handleDelete('regulations', reg.id, reg.name)}>
+                                🗑️ Delete Regulation
+                            </button>
+                        </div>
                         
                         {reg.branches.map(branch => (
                             <div key={branch.id} className="branch-item">
-                                <h3>{branch.name}</h3>
+                                <div className="item-header">
+                                    <h3>{branch.name}</h3>
+                                    <button className="delete-btn" onClick={() => handleDelete('branches', branch.id, branch.name)}>
+                                        🗑️ Delete Branch
+                                    </button>
+                                </div>
                                 
                                 {branch.subjects.map(sub => (
                                     <div key={sub.id} className="subject-item">
-                                        <h4>{sub.name} (Yr {sub.year} - Sem {sub.semester})</h4>
+                                        <div className="item-header">
+                                            <h4>{sub.name} (Yr {sub.year} - Sem {sub.semester})</h4>
+                                            <button className="delete-btn" onClick={() => handleDelete('subjects', sub.id, sub.name)}>
+                                                🗑️ Delete Subject
+                                            </button>
+                                        </div>
                                         
                                         {sub.resources.length > 0 && (
                                             <div className="general-resources">
                                                 <strong>General Files:</strong>
                                                 {sub.resources.map(res => (
-                                                    <a key={res.id} href={res.fileUrl} target="_blank" rel="noreferrer" className="resource-link">📄 {res.fileName}</a>
+                                                    <span key={res.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                        <a href={res.fileUrl} target="_blank" rel="noreferrer" className="resource-link">📄 {res.fileName}</a>
+                                                        <button className="delete-btn" onClick={() => handleDelete('resources', res.id, res.fileName)}>×</button>
+                                                    </span>
                                                 ))}
                                             </div>
                                         )}
@@ -344,14 +426,27 @@ function RegulationManager() {
                                         <div className="components-container">
                                             {sub.components.map(comp => (
                                                 <div key={comp.id} className="component-box">
-                                                    <h5>{comp.type}</h5>
+                                                    <div className="item-header">
+                                                        <h5>{comp.type}</h5>
+                                                        <button className="delete-btn" onClick={() => handleDelete('components', comp.id, comp.type)}>
+                                                            🗑️ Delete
+                                                        </button>
+                                                    </div>
                                                     
                                                     {comp.modules.map(mod => (
                                                         <div key={mod.id} className="module-item">
-                                                            <strong>{mod.name} {mod.moduleNo}</strong>
+                                                            <div className="item-header">
+                                                                <strong>{mod.name} {mod.moduleNo}</strong>
+                                                                <button className="delete-btn" onClick={() => handleDelete('modules', mod.id, `${mod.name} ${mod.moduleNo}`)}>
+                                                                    ×
+                                                                </button>
+                                                            </div>
                                                             <div className="module-resources">
                                                                 {mod.resources.map(res => (
-                                                                    <a key={res.id} href={res.fileUrl} target="_blank" rel="noreferrer" className="resource-link">📄 {res.fileName}</a>
+                                                                    <span key={res.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                                                        <a href={res.fileUrl} target="_blank" rel="noreferrer" className="resource-link">📄 {res.fileName}</a>
+                                                                        <button className="delete-btn" onClick={() => handleDelete('resources', res.id, res.fileName)}>×</button>
+                                                                    </span>
                                                                 ))}
                                                             </div>
                                                         </div>

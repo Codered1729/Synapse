@@ -194,3 +194,25 @@
 .resource-link:hover {
     text-decoration: underline;
 }
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #ef4444;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.delete-btn:hover {
+    background: #fee2e2;
+}

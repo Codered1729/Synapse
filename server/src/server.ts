@@ -6,7 +6,8 @@ import path from "path"
 import authRoutes from "./routes/auth"
 import academicRoutes from "./routes/academic"
 
-dotenv.config({path: path.resolve(__dirname , "../../.env")})
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;

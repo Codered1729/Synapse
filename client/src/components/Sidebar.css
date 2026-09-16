@@ -1,27 +1,119 @@
 .sidebar-container {
-  width: 250px;
-  background: #f4f4f4;
-  padding: 20px;
+  width: 260px;
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.sidebar-header {
+  margin-bottom: 20px;
+}
+
+.sidebar-logo {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: -0.5px;
+}
+
+.sidebar-tagline {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.user-profile-badge {
+  background: #334155;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.user-email {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #f1f5f9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.role-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+}
+
+.role-admin {
+  background: #ef4444;
+  color: #fff;
+}
+
+
+.role-student {
+  background: #3b82f6;
+  color: #fff;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: 30px;
+  gap: 8px;
+  flex: 1;
 }
 
 .sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 6px;
   text-decoration: none;
-  color: #333;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
 .sidebar-link:hover {
-  color: #007bff;
+  background: #334155;
+  color: #ffffff;
 }
 
 .sidebar-link-active {
-  text-decoration: none;
-  color: #007bff;
-  font-weight: bold;
+  background: #0284c7;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+}
+
+.logout-button {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
 }

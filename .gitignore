@@ -19,3 +19,8 @@ server/dist/
 .DS_Store
 Thumbs.db
 
+# Ignored toolkits and documentation
+Manware-s-AI-Learning-Toolkit/
+*manware*
+ai.md
+*ai.md
