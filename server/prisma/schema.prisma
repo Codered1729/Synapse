@@ -8,10 +8,11 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
+  id            Int        @id @default(autoincrement())
+  email         String     @unique
   password_hash String
-  role          String   @default("student")
+  role          String     @default("student")
+  resources     Resource[]
 }
 
 model Regulation {
@@ -59,12 +60,17 @@ model Module {
 }
 
 model Resource {
-  id        Int      @id @default(autoincrement())
-  fileName  String   
-  fileUrl   String   
+  id             Int       @id @default(autoincrement())
+  fileName       String   
+  fileUrl        String   
+  originalAuthor String?
+  createdAt      DateTime  @default(now())
   
-  subjectId Int
-  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  subjectId      Int
+  subject        Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   
-  modules   Module[] 
+  uploadedById   Int?
+  uploadedBy     User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  modules        Module[] 
 }

@@ -18,11 +18,25 @@ router.get('/regulations', async (req: AuthRequest, res: Response): Promise<void
                                     include: { 
                                         modules: {
                                             orderBy: { moduleNo: 'asc' }, 
-                                            include: { resources: true }
+                                            include: { 
+                                                resources: {
+                                                    include: {
+                                                        uploadedBy: {
+                                                            select:{id : true , email:true}
+                                                        }
+                                                    }
+                                                } 
+                                            }
                                         } 
                                     }
                                 },
-                                resources: true
+                                resources: {
+                                    include: {
+                                        uploadedBy: {
+                                            select: { id: true, email: true }
+                                        }
+                                    }
+                                }
                             } 
                         }
                     } 
@@ -130,7 +144,7 @@ router.post('/modules', authorizeRoles('admin'), async (req: AuthRequest, res: R
 
 router.post('/resources', authorizeRoles('admin', 'student'), async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { fileName, fileUrl, subjectId, moduleIds } = req.body;
+        const { fileName, fileUrl, subjectId, moduleIds, originalAuthor } = req.body;
         if (!fileName || !fileUrl || !subjectId) {
             res.status(400).json({ error: "File name, URL, and subjectId are required" });
             return;
@@ -139,6 +153,8 @@ router.post('/resources', authorizeRoles('admin', 'student'), async (req: AuthRe
             data: {
                 fileName: fileName.trim(),
                 fileUrl: fileUrl.trim(),
+                originalAuthor: originalAuthor? originalAuthor.trim() : null,
+                uploadedById : req.user ? req.user.id : null,
                 subjectId: Number(subjectId),
                 modules: moduleIds && moduleIds.length > 0 ? {
                     connect: moduleIds.map((id: number | string) => ({ id: Number(id) }))
