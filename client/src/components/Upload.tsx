@@ -30,6 +30,7 @@ const Upload: React.FC = () => {
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [fileName, setFileName] = useState('');
   const [fileUrl, setFileUrl] = useState('');
+  const [originalAuthor , setOriginalAuthor] = useState('');
   const [isGeneral, setIsGeneral] = useState(true);
   const [selectedModuleIds, setSelectedModuleIds] = useState<number[]>([]);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -82,6 +83,7 @@ const Upload: React.FC = () => {
       await api.post('/academic/resources', {
         fileName,
         fileUrl,
+        originalAuthor,
         subjectId: Number(selectedSubjectId),
         moduleIds: isGeneral ? [] : selectedModuleIds
       });
@@ -89,6 +91,7 @@ const Upload: React.FC = () => {
       setStatusMessage({ type: 'success', text: `Resource "${fileName}" successfully shared!` });
       setFileName('');
       setFileUrl('');
+      setOriginalAuthor('');
       setSelectedModuleIds([]);
       setIsGeneral(true);
     } catch (err: unknown) {
@@ -153,6 +156,16 @@ const Upload: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+            Original Author/ source Credit
+         </label>
+         <input type = "text" placeholder='e.g teacher or bookname or student' 
+         value = {originalAuthor} 
+         onChange={(e)=>{setOriginalAuthor(e.target.value)}}
+         style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.95rem', boxSizing: 'border-box' }}
+        />
         </div>
 
         <div>

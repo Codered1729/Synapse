@@ -5,6 +5,11 @@ interface Resource {
   id: number;
   fileName: string;
   fileUrl: string;
+  originalAuthor?: string | null;
+  uploadedBy ?:{
+    id : number;
+    email:string;
+  } | null;
 }
 
 interface Module {
@@ -199,15 +204,23 @@ const Browse: React.FC = () => {
                     <h4 style={{ margin: '0 0 8px', fontSize: '0.9rem', color: '#64748b', textTransform: 'uppercase' }}>General Resources / Syllabus</h4>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                       {sub.resources.map(res => (
-                        <a 
-                          key={res.id} 
-                          href={res.fileUrl} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#e0f2fe', color: '#0369a1', padding: '6px 12px', borderRadius: '6px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 500 }}
-                        >
-                          📄 {res.fileName}
-                        </a>
+                        <div key={res.id} style={{ display: 'inline-flex', flexDirection: 'column', background: '#e0f2fe', padding: '6px 12px', borderRadius: '6px' }}>
+                          <a 
+                            href={res.fileUrl} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            style={{ color: '#0369a1', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600 }}
+                          >
+                            📄 {res.fileName}
+                          </a>
+                          {(res.originalAuthor || res.uploadedBy) && (
+                            <span style={{ fontSize: '0.75rem', color: '#0369a1', opacity: 0.85, marginTop: '2px' }}>
+                              {res.originalAuthor && `By: ${res.originalAuthor}`}
+                              {res.originalAuthor && res.uploadedBy && ' • '}
+                              {res.uploadedBy && `Uploaded by: ${res.uploadedBy.email.split('@')[0]}`}
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -227,17 +240,25 @@ const Browse: React.FC = () => {
                               {mod.name} {mod.moduleNo}
                             </div>
                             {mod.resources.length > 0 ? (
-                              <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 {mod.resources.map(res => (
-                                  <a 
-                                    key={res.id} 
-                                    href={res.fileUrl} 
-                                    target="_blank" 
-                                    rel="noreferrer" 
-                                    style={{ fontSize: '0.8rem', color: '#0284c7', textDecoration: 'underline' }}
-                                  >
-                                    📄 {res.fileName}
-                                  </a>
+                                  <div key={res.id} style={{ display: 'flex', flexDirection: 'column', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                    <a 
+                                      href={res.fileUrl} 
+                                      target="_blank" 
+                                      rel="noreferrer" 
+                                      style={{ fontSize: '0.85rem', color: '#0284c7', textDecoration: 'none', fontWeight: 600 }}
+                                    >
+                                      📄 {res.fileName}
+                                    </a>
+                                    {(res.originalAuthor || res.uploadedBy) && (
+                                      <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                                        {res.originalAuthor && `By: ${res.originalAuthor}`}
+                                        {res.originalAuthor && res.uploadedBy && ' • '}
+                                        {res.uploadedBy && `Uploaded by: ${res.uploadedBy.email.split('@')[0]}`}
+                                      </span>
+                                    )}
+                                  </div>
                                 ))}
                               </div>
                             ) : (
